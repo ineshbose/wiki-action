@@ -1,0 +1,48 @@
+name: "Wiki Action"
+description: "This action builds a sidebar and updates a project's wiki"
+
+inputs:
+  GH_TOKEN:
+    description: "GitHub token"
+    required: true
+  WIKI_DIR:
+    description: "Wiki directory"
+    required: false
+    default: "wiki"
+  WIKI_IGNORE:
+    description: "Exclude directories/files from wiki (also from sidebar)"
+    required: false
+    default: ""
+  AUTO_SIDEBAR:
+    description: "Build sidebar"
+    required: false
+    default: false
+  SIDEBAR_IGNORE:
+    description: "Exclude directories/files from sidebar"
+    required: false
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: Update sidebar
+      shell: bash
+      run: ${{ github.action_path }}/sidebar.sh
+      if: ${{ inputs.AUTO_SIDEBAR }}
+      env:
+        WIKI_DIR: ${{ inputs.WIKI_DIR }}
+        WIKI_IGNORE: ${{ inputs.WIKI_IGNORE }}
+        SIDEBAR_IGNORE: ${{ inputs.SIDEBAR_IGNORE }}
+
+    - name: Publish wiki
+      shell: bash
+      run: ${{ github.action_path }}/publish.sh
+      env:
+        GH_TOKEN: ${{ inputs.GH_TOKEN }}
+        WIKI_DIR: ${{ inputs.WIKI_DIR }}
+        WIKI_IGNORE: ${{ inputs.WIKI_IGNORE }}
+
+
+branding:
+  icon: "book-open"
+  color: "gray-dark"

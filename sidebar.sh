@@ -1,5 +1,24 @@
 #!/bin/bash
 
+iterate_folder() {
+  if grep -q -x "$1" "$IGNORE_FILE"; then
+    return
+  fi
+  if [ -f "$1" ]; then
+    line="$(printf '%0*s' $2 | tr '0' '\t')- [$(basename $1 | sed 's/\.[^.]*$//')]($(basename $1 | sed 's/\.[^.]*$//'))"
+    echo "$line" >> _Sidebar.md
+  else
+    name="${1#*/}"
+    line="$(printf '%0*s' $2 | tr '0' '\t')- ${name^}"
+    echo "$line" >> _Sidebar.md
+    for file in $1/*; do
+      level=$2
+      level=$((level+1))
+      iterate_folder $file $level
+    done
+  fi
+}
+
 echo "Building sidebar.."
 cd $WIKI_DIR
 
@@ -16,23 +35,7 @@ if [ -n "$IGNORE" ]; then
 fi
 
 for f in *; do
-    if grep -q -x "$f" "$IGNORE_FILE"; then
-      echo "Exclude $f"
-      continue
-    fi
-    if [ -f "$f" ]; then
-      echo "* [$(echo $f | sed 's/\.[^.]*$//')]($(echo $f | sed 's/\.[^.]*$//'))" >> _Sidebar.md
-    else
-      name="${f#*/}"
-      echo "* ${name^}" >> _Sidebar.md
-      for file in $f/*; do
-        if grep -q -x "$f" "$IGNORE_FILE"; then
-          echo "Exclude $f"
-          continue
-        fi
-        echo "  * [$(basename $file | sed 's/\.[^.]*$//')]($(basename $file | sed 's/\.[^.]*$//'))" >> _Sidebar.md
-      done
-    fi
+  iterate_folder $f 0
 done
 
 rm $IGNORE_FILE

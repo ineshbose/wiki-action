@@ -16,6 +16,7 @@ cd "$WIKI_DIR"
 git config --local user.email "$(git log -1 --format='%ae')"
 git config --local user.name "$(git log -1 --format='%an')"
 
+test -e .wikignore && cat .wikignore >> .gitignore
 if [ -n "$WIKI_IGNORE" ]; then
   for file in $WIKI_IGNORE; do
     echo "$file" >> .gitignore

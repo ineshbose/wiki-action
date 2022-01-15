@@ -8,6 +8,7 @@ IGNORE_FILE="../temp_wiki_excluded_$GITHUB_SHA.txt"
 
 echo "_Footer.md" >> $IGNORE_FILE
 echo "_Sidebar.md" >> $IGNORE_FILE
+test -e .wikignore && IGNORE="$IGNORE $(cat .wikignore | tr '\r\n' ' ')"
 
 if [ -n "$IGNORE" ]; then
   for file in $IGNORE; do
@@ -26,8 +27,8 @@ for f in *; do
       name="${f#*/}"
       echo "* ${name^}" >> _Sidebar.md
       for file in $f/*; do
-        if grep -q -x "$f" "$IGNORE_FILE"; then
-          echo "Exclude $f"
+        if grep -q -x "$file" "$IGNORE_FILE"; then
+          echo "Exclude $file"
           continue
         fi
         echo "  * [$(basename $file | sed 's/\.[^.]*$//')]($(basename $file | sed 's/\.[^.]*$//'))" >> _Sidebar.md
